@@ -1,12 +1,25 @@
 // app/page.js
-export default function HomePage() {
+import { getServerSession } from "next-auth";
+import { authOptions } from "./api/auth/[...nextauth]/route";
+
+export default async function HomePage() {
+  const session = await getServerSession(authOptions);
+
+  if (session) {
+    // Chuyển hướng tới dashboard nếu người dùng đã đăng nhập
     return (
-      <div className="flex items-center justify-center h-screen">
-        <h1 className="text-4xl font-bold">Welcome to Spend Management</h1>
-        <p className="mt-4">Manage your expenses efficiently!</p>
-        <a href="/login" className="mt-4 inline-block bg-blue-500 text-white p-2 rounded">
-          Login
-        </a>
+      <div>
+        <h1>Welcome, {session.user.name}!</h1>
+        <p>Go to your <a href="/dashboard">Dashboard</a>.</p>
       </div>
     );
   }
+
+  // Hiển thị trang mặc định nếu chưa đăng nhập
+  return (
+    <div>
+      <h1>Welcome to Spend Management</h1>
+      <p>Please <a href="/login">Login</a> to continue.</p>
+    </div>
+  );
+}

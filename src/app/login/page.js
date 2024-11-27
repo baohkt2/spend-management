@@ -1,47 +1,23 @@
-import { signIn } from 'next-auth/react';
-import { useState } from 'react';
-import { useRouter } from 'next/router';
+// app/login/page.js
+"use client";
+import { signIn } from "next-auth/react";
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const router = useRouter();
-
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const result = await signIn('credentials', { email, password, redirect: false });
-    if (result.error) {
-      setError('Invalid email or password');
-    } else {
-      router.push('/dashboard'); // Redirect to dashboard on success
-    }
+    const username = e.target.username.value;
+    const password = e.target.password.value;
+    await signIn("credentials", { username, password, callbackUrl: "/" });
   };
 
   return (
-    <div className="flex items-center justify-center h-screen">
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md">
-        <h2 className="text-lg font-bold mb-4">Login</h2>
-        {error && <p className="text-red-500">{error}</p>}
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="border p-2 mb-4 w-full"
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="border p-2 mb-4 w-full"
-          required
-        />
-        <button type="submit" className="bg-blue-500 text-white p-2 rounded w-full">Login</button>
+    <div>
+      <h1>Login</h1>
+      <form onSubmit={handleLogin}>
+        <input type="text" name="username" placeholder="Username" />
+        <input type="password" name="password" placeholder="Password" />
+        <button type="submit">Login</button>
       </form>
     </div>
-
   );
 }

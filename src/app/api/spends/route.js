@@ -1,20 +1,33 @@
-import { NextResponse } from 'next/server';
+// app/api/spends/route.js
+// app/api/spends/route.js
+import { getSheetData } from "@/lib/googleSheets";
 
 export async function GET() {
-  // Fetch spends from your database or external API
-  const spends = [
-    { id: 1, description: 'Groceries', amount: 50 },
-    { id: 2, description: 'Utilities', amount: 100 },
-  ];
-  return NextResponse.json(spends);
+  try {
+    const data = await getSheetData("Spends!A:D");
+    return new Response(JSON.stringify(data), { status: 200 });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+  }
 }
 
-export async function POST(request) {
-  const data = await request.json();
-  // Validate and save the spend to your database
-  if (!data.description || !data.amount) {
-    return NextResponse.json({ message: 'Invalid data' }, { status: 400 });
+
+import { appendSheetData } from "@/lib/googleSheets";
+
+export async function POST(req) {
+  try {
+    const body = await req.json();
+    const { user, category, amount, date } = body;
+
+    // Validate input data
+    if (!user || !category || !amount || !date) {
+      return new Response("Invalid data", { status: 400 });
+    }
+
+    // Append data to Google Sheets
+    await appendSheetData("Spends!A:D", [[user, category, amount, date]]);
+    return new Response("Spend added successfully", { status: 200 });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
-  // Simulate saving to a database
-  return NextResponse.json({ message: 'Spend added successfully' }, { status: 201 });
 }
